@@ -32,7 +32,7 @@ pipeline{
             }
         }
 
-        stage('Building and pusing  Docker Image to GCR'){
+        stage('Building and pushing Docker Image to GCR'){
             agent {
                 docker {
                 image 'google/cloud-sdk:slim'
@@ -42,27 +42,26 @@ pipeline{
             environment {
                 GCP_PROJECT = 'primal-ivy-475212-d0'
             }
-            steps{
-                withCredentials([file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]){
-                    script{
-                        echo 'Building and pusing  Docker Image to GCR............'
-                        sh '''
-                        set -eux
-                        export PATH="$PATH:$(GCLOUD_PATH)"
+            steps {
+                withCredentials([file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                sh '''
+                    set -eux
 
-                        gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}"
+                    # Install Docker CLI inside this container (Debian-based)
+                    apt-get update
+                    apt-get install -y --no-install-recommends docker.io
+                    docker --version
 
-                        gcloud config set project "${GCP_PROJECT}"
+                    gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}"
+                    gcloud config set project "${GCP_PROJECT}"
+                    # Configure only the registry you need (faster, fewer warnings)
+                    gcloud auth configure-docker gcr.io --quiet
 
-                        gcloud auth configure-docker --quiet
-
-                        docker build -t "gcr.io/${GCP_PROJECT}/mlops:latest" .
-
-                        docker push "gcr.io/${GCP_PROJECT}/mlops:latest"
-                        '''
-                    }
+                    docker build -t "gcr.io/${GCP_PROJECT}/mlops:latest" .
+                    docker push "gcr.io/${GCP_PROJECT}/mlops:latest"
+                '''
                 }
             }
-        }
+            }
     }
 }
