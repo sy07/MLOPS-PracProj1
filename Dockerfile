@@ -13,5 +13,5 @@ COPY . .
 
 RUN pip install --no-cache-dir -e .
 
-EXPOSE 5000
+EXPOSE 8080
 CMD ["python3", "application.py"]
