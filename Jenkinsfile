@@ -89,10 +89,10 @@ pipeline{
                     gcloud config set project "${GCP_PROJECT}"
                     
                     gcloud run deploy mlops \
-                        --image=gcr.io/${GCP_PROJECT}/mlops:latest \
+                        --image=gcr.io/"${GCP_PROJECT}"/mlops:latest \
                         --platform=managed \
                         --region=us-central1 \
-                        --allow=unauthenticated
+                        --allow-unauthenticated
                 '''
                 }
             }
