@@ -36,7 +36,7 @@ pipeline{
             agent {
                 docker {
                 image 'google/cloud-sdk:slim'
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
+                args '-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             environment {
