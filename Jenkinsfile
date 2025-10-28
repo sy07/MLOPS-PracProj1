@@ -63,5 +63,39 @@ pipeline{
                 }
             }
             }
+
+        stage('Deploying to Google Cloud Run'){
+            agent {
+                docker {
+                image 'google/cloud-sdk:slim'
+                args '-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
+            environment {
+                GCP_PROJECT = 'primal-ivy-475212-d0'
+            }
+            steps {
+                withCredentials([file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                echo 'Deploying to Google Cloud Run.............'                    
+                sh '''
+                    set -eux
+
+                    # Install Docker CLI inside this container (Debian-based)
+                    apt-get update
+                    apt-get install -y --no-install-recommends docker.io
+                    docker --version
+
+                    gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}"
+                    gcloud config set project "${GCP_PROJECT}"
+                    
+                    gcloud run deploy mlops \
+                        --image=gcr.io/${GCP_PROJECT}/mlops:latest \
+                        --platform=managed \
+                        --region=us-central1 \
+                        --allow=unauthenticated
+                '''
+                }
+            }
+        }    
     }
 }
