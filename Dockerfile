@@ -1,4 +1,4 @@
-FROM python:slim
+FROM python3:slim
 
 ENV PYTHONDONTWRITEBYTECODE = 1 \
     PYTHONUNBUFFERED = 1
@@ -14,8 +14,8 @@ COPY . .
 
 RUN pip install --no-cache-dir -e .
 
-RUN python pipeline/training_pipeline.py
+RUN python3 pipeline/training_pipeline.py
 
 EXPOSE 5000
 
-CMD ["python", "application.py"]
+CMD ["python3", "application.py"]
