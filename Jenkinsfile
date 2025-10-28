@@ -33,6 +33,15 @@ pipeline{
         }
 
         stage('Building and pusing  Docker Image to GCR'){
+            agent {
+                docker {
+                image 'google/cloud-sdk:slim'
+                args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
+            environment {
+                GCP_PROJECT = 'primal-ivy-475212-d0'
+            }
             steps{
                 withCredentials([file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]){
                     script{
